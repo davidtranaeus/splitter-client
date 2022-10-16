@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+body {
+  display: flex;
+  justify-content: center;
+}
+
+#root {
+  width: 100%;
+  flex-direction: column;
+  display: flex;
+  align-items: center;
+}
+
+.person-selector {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  justify-content: space-evenly;
+  width: 50%;
+}
+*/
+
+/* just use tailwind?? */
