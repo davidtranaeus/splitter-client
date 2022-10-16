@@ -12,11 +12,11 @@ const ExpenseView = () => {
   const persons = [
     {
       id: 1,
-      icon: "👨🏼",
+      icon: "🦖",
     },
     {
       id: 2,
-      icon: "👩🏽",
+      icon: "🐴",
     },
   ];
   const [currentPerson, setCurrentPerson] = useState();
