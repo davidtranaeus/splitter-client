@@ -95,7 +95,7 @@ const ExpenseView = () => {
         )}
       </div>
       {expenses.length !== 0 && (
-        <span class="text-4xl mt-8">{settledSum}</span>
+        <span className="text-4xl mt-8">{settledSum}</span>
       )}
       <ul className="mt-4">
         {expenses.map((expense, index) => {

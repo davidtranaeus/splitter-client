@@ -6,13 +6,13 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 // dist/main.js is default output (bundle)
 
 module.exports = {
-  mode: 'development', // allows use of source maps and other tools
+  // mode: 'development', // allows use of source maps and other tools
   // entry: './src/index.js', // entry point in source code
   entry: {
     index: './src/index.js',
     // print: './src/print.js',
   },
-  devtool: 'inline-source-map', // source maps
+  // devtool: 'inline-source-map', // source maps
   // devServer: {
   //   // webpack-dev-server is a server which serves the files from dist on localhost:8080
   //   // allows live reloading through a websocket
