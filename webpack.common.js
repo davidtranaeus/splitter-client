@@ -13,6 +13,9 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'), // distribution code where bundle from dependency graph is placed
     clean: true,
   },
+  resolve: { // webpack does not look for .tsx files by default (.js, .json, .wasm)
+    extensions: ['.tsx', '.ts'],
+  },
   // optimization: {
   //   // setting if we have more than one entrypoint
   //   // (which could be instantiating the same modules)
