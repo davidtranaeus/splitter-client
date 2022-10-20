@@ -3,33 +3,40 @@ import './index.css'
 import { useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 
-type Person = {
-  id: number;
-  icon: string;
-}
+const LOCALSTORAGE_KEY = 'splitter-expenses'
 
 type Expense = {
-  amount: number;
-  person: Person;
+  amount: number
+  personId: number
+}
+
+type Person = {
+  id: number
+  icon: string
+}
+
+const persons: Person[] = [
+  {
+    id: 0,
+    icon: '🦖',
+  },
+  {
+    id: 1,
+    icon: '🐴',
+  },
+]
+
+const saveState = (value: any) => {
+  localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(value))
 }
 
 const ExpenseView = () => {
   const [expenses, setExpenses] = useState(() => {
-    const localData = localStorage.getItem('splitter-expenses')
+    const localData = localStorage.getItem(LOCALSTORAGE_KEY)
     return localData ? JSON.parse(localData) : []
   })
 
-  const persons: Person[] = [
-    {
-      id: 1,
-      icon: '🦖',
-    },
-    {
-      id: 2,
-      icon: '🐴',
-    },
-  ]
-  const [currentPerson, setCurrentPerson] = useState<number>()
+  const [currentPerson, setCurrentPerson] = useState<number>(null)
   const [settledSum, setSettledSum] = useState<string>()
 
   const addExpense = (expense: string) => {
@@ -38,22 +45,38 @@ const ExpenseView = () => {
         ...currentExpenses,
         {
           amount: parseInt(expense),
-          person: persons.find((p) => p.id === currentPerson),
+          personId: persons.find((p) => p.id === currentPerson).id,
         },
       ]
-      localStorage.setItem('splitter-expenses', JSON.stringify(updatedExpenses))
+      saveState(updatedExpenses)
       return updatedExpenses
     })
   }
 
   const sumExpenses = (id: number) => {
     return expenses.reduce((total: number, expense: Expense) => {
-      if (expense.person.id !== id) return total
+      if (expense.personId !== id) return total
       return total + expense.amount
     }, 0)
   }
 
-  const settleExpenses = () => {
+  const clearExpenses = () => {
+    if (!window.confirm('👋?')) return
+    setExpenses([])
+    saveState([])
+  }
+
+  const deleteExpense = (deleteIndex: number) => {
+    setExpenses((currentExpenses: Expense[]) => {
+      const updatedExpenses = currentExpenses.filter((_, index) => {
+        return index !== deleteIndex
+      })
+      saveState(updatedExpenses)
+      return updatedExpenses
+    })
+  }
+
+  useEffect(() => {
     const owedSums = persons.map((person) => {
       return sumExpenses(person.id) / 2
     })
@@ -62,25 +85,7 @@ const ExpenseView = () => {
     const sender = diff > 0 ? persons[1] : persons[0]
 
     setSettledSum(`${sender.icon} → ${Math.abs(diff)} → ${receiver.icon}`)
-  }
-
-  const clearExpenses = () => {
-    if (!window.confirm('👋?')) return
-    setExpenses([])
-    localStorage.setItem('splitter-expenses', '[]')
-  }
-
-  const deleteExpense = (deleteIndex: number) => {
-    setExpenses((currentExpenses: Expense[]) => {
-      const updatedExpenses = currentExpenses.filter((_, index) => {
-        return index !== deleteIndex
-      })
-      localStorage.setItem('splitter-expenses', JSON.stringify(updatedExpenses))
-      return updatedExpenses
-    })
-  }
-
-  useEffect(settleExpenses, [expenses])
+  }, [expenses])
 
   return (
     <>
@@ -90,7 +95,7 @@ const ExpenseView = () => {
         handleSelect={setCurrentPerson}
       />
       <div className="flex mt-4">
-        {currentPerson && <AddExpenseForm handleClick={addExpense} />}
+        {currentPerson !== null && <AddExpenseForm handleClick={addExpense} />}
         {expenses.length !== 0 && (
           <>
             <button
@@ -107,13 +112,15 @@ const ExpenseView = () => {
       )}
       <ul className="mt-4">
         {expenses.map((expense: Expense, index: number) => {
+          const icon = persons.find((p) => p.id === expense.personId).icon
+
           return (
             <li className="mt-4" key={index}>
               <button onClick={() => deleteExpense(index)} className="mr-4">
                 ❌
               </button>
               <span className="text-lg">
-                {expense.amount} {expense.person.icon}
+                {expense.amount} {icon}
               </span>
             </li>
           )
@@ -123,9 +130,13 @@ const ExpenseView = () => {
   )
 }
 
-const SelectPersonForm = ({ persons, currentPerson, handleSelect }: {
-  persons: Person[],
-  currentPerson: number,
+const SelectPersonForm = ({
+  persons,
+  currentPerson,
+  handleSelect,
+}: {
+  persons: Person[]
+  currentPerson: number
   handleSelect: Function
 }) => {
   return (
@@ -154,7 +165,7 @@ const SelectPersonForm = ({ persons, currentPerson, handleSelect }: {
 const AddExpenseForm = ({ handleClick }: { handleClick: Function }) => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const target = e.target as HTMLFormElement;
+    const target = e.target as HTMLFormElement
     handleClick((target[0] as HTMLInputElement).value)
     target.reset()
   }
