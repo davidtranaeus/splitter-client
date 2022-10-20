@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "module": "es6",
+    "moduleResolution": "node",
+    "noImplicitAny": true,
+    "target": "es5"
+  }
+}

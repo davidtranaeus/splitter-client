@@ -1,7 +1,17 @@
 import './index.css'
 
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
+
+type Person = {
+  id: number;
+  icon: string;
+}
+
+type Expense = {
+  amount: number;
+  person: Person;
+}
 
 const ExpenseView = () => {
   const [expenses, setExpenses] = useState(() => {
@@ -9,7 +19,7 @@ const ExpenseView = () => {
     return localData ? JSON.parse(localData) : []
   })
 
-  const persons = [
+  const persons: Person[] = [
     {
       id: 1,
       icon: '🦖',
@@ -19,12 +29,12 @@ const ExpenseView = () => {
       icon: '🐴',
     },
   ]
-  const [currentPerson, setCurrentPerson] = useState()
-  const [settledSum, setSettledSum] = useState()
+  const [currentPerson, setCurrentPerson] = useState<number>()
+  const [settledSum, setSettledSum] = useState<string>()
 
-  const addExpense = (expense) => {
-    setExpenses((currentExpenses) => {
-      const updatedExpenses = [
+  const addExpense = (expense: string) => {
+    setExpenses((currentExpenses: Expense[]) => {
+      const updatedExpenses: Expense[] = [
         ...currentExpenses,
         {
           amount: parseInt(expense),
@@ -36,8 +46,8 @@ const ExpenseView = () => {
     })
   }
 
-  const sumExpenses = (id) => {
-    return expenses.reduce((total, expense) => {
+  const sumExpenses = (id: number) => {
+    return expenses.reduce((total: number, expense: Expense) => {
       if (expense.person.id !== id) return total
       return total + expense.amount
     }, 0)
@@ -60,8 +70,8 @@ const ExpenseView = () => {
     localStorage.setItem('splitter-expenses', '[]')
   }
 
-  const deleteExpense = (deleteIndex) => {
-    setExpenses((currentExpenses) => {
+  const deleteExpense = (deleteIndex: number) => {
+    setExpenses((currentExpenses: Expense[]) => {
       const updatedExpenses = currentExpenses.filter((_, index) => {
         return index !== deleteIndex
       })
@@ -96,7 +106,7 @@ const ExpenseView = () => {
         <span className="text-4xl mt-8">{settledSum}</span>
       )}
       <ul className="mt-4">
-        {expenses.map((expense, index) => {
+        {expenses.map((expense: Expense, index: number) => {
           return (
             <li className="mt-4" key={index}>
               <button onClick={() => deleteExpense(index)} className="mr-4">
@@ -113,7 +123,11 @@ const ExpenseView = () => {
   )
 }
 
-const SelectPersonForm = ({ persons, currentPerson, handleSelect }) => {
+const SelectPersonForm = ({ persons, currentPerson, handleSelect }: {
+  persons: Person[],
+  currentPerson: number,
+  handleSelect: Function
+}) => {
   return (
     <ul className="flex w-3/4 justify-evenly mt-8">
       {persons.map((person, index) => {
@@ -137,18 +151,19 @@ const SelectPersonForm = ({ persons, currentPerson, handleSelect }) => {
   )
 }
 
-const AddExpenseForm = ({ handleClick }) => {
-  const handleSubmit = (e) => {
+const AddExpenseForm = ({ handleClick }: { handleClick: Function }) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    handleClick(e.target[0].value)
-    e.target.reset()
+    const target = e.target as HTMLFormElement;
+    handleClick((target[0] as HTMLInputElement).value)
+    target.reset()
   }
   return (
     <form className="flex flex-row" onSubmit={handleSubmit}>
       <input
         className="border rounded-md mr-2 text-xl"
         type="number"
-        required="required"
+        required
         name="expense"
       />
       <input
