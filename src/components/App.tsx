@@ -1,26 +1,22 @@
 import { useEffect, useState } from 'react'
 import PersonSelector from './PersonSelector'
 import AddExpenseForm from './AddExpenseForm'
-
+import ExpenseList from './ExpenseList'
 import { Person, Expense } from './../types'
-import { getState, saveState } from './../storage'
-const persons: Person[] = [
-  {
-    id: 0,
-    icon: '🦖',
-  },
-  {
-    id: 1,
-    icon: '🐴',
-  },
-]
+import { getPersistedState, persistState } from './../storage'
 
 const App = () => {
-  const [expenses, setExpenses] = useState(() => {
-    const localData = getState()
-    return localData ? JSON.parse(localData) : []
-  })
-
+  const [expenses, setExpenses] = useState<Expense[]>(getPersistedState)
+  const [persons, _setPersons] = useState<Person[]>([
+    {
+      id: 0,
+      icon: '🦖',
+    },
+    {
+      id: 1,
+      icon: '🐴',
+    },
+  ])
   const [currentPerson, setCurrentPerson] = useState<number>(null)
   const [settledSum, setSettledSum] = useState<string>()
 
@@ -33,7 +29,7 @@ const App = () => {
           personId: persons.find((p) => p.id === currentPerson).id,
         },
       ]
-      saveState(updatedExpenses)
+      persistState(updatedExpenses)
       return updatedExpenses
     })
   }
@@ -48,15 +44,15 @@ const App = () => {
   const clearExpenses = () => {
     if (!window.confirm('👋?')) return
     setExpenses([])
-    saveState([])
+    persistState([])
   }
 
-  const deleteExpense = (deleteIndex: number) => {
+  const removeExpense = (removeIndex: number) => {
     setExpenses((currentExpenses: Expense[]) => {
       const updatedExpenses = currentExpenses.filter((_, index) => {
-        return index !== deleteIndex
+        return index !== removeIndex
       })
-      saveState(updatedExpenses)
+      persistState(updatedExpenses)
       return updatedExpenses
     })
   }
@@ -95,22 +91,11 @@ const App = () => {
       {expenses.length !== 0 && (
         <span className="text-4xl mt-8">{settledSum}</span>
       )}
-      <ul className="mt-4">
-        {expenses.map((expense: Expense, index: number) => {
-          const icon = persons.find((p) => p.id === expense.personId).icon
-
-          return (
-            <li className="mt-4" key={index}>
-              <button onClick={() => deleteExpense(index)} className="mr-4">
-                ❌
-              </button>
-              <span className="text-lg">
-                {expense.amount} {icon}
-              </span>
-            </li>
-          )
-        })}
-      </ul>
+      <ExpenseList
+        expenses={expenses}
+        onRemove={removeExpense}
+        persons={persons}
+      />
     </>
   )
 }

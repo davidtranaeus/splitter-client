@@ -1,9 +1,12 @@
+import { Expense } from './types'
+
 const LOCALSTORAGE_KEY = 'splitter-expenses'
 
-export const saveState = (value: any) => {
+export const persistState = (value: any) => {
   localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(value))
 }
 
-export const getState = () => {
-  return localStorage.getItem(LOCALSTORAGE_KEY)
+export const getPersistedState = (): Expense[] => {
+  const localData = localStorage.getItem(LOCALSTORAGE_KEY)
+  return localData ? JSON.parse(localData) : []
 }
